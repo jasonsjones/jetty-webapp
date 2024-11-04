@@ -2,10 +2,20 @@ package com.jasonsjones;
 
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
+import org.eclipse.jetty.util.resource.Resource;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 class CoreHandler extends Handler.Abstract {
     private static final Logger LOGGER = LoggerFactory.getLogger(CoreHandler.class);
@@ -36,8 +46,21 @@ public class CoreServer {
 
         server.addConnector(connector);
 
-        ContextHandler contextHandler = new ContextHandler(new CoreHandler(), "/");
-        server.setHandler(contextHandler);
+        Path webRoot = Paths.get("src/main/resources/web").toAbsolutePath().normalize();
+        if (!Files.isDirectory(webRoot)) {
+            System.err.println("ERROR: Unable to find " + webRoot + ".");
+            System.exit(-1);
+        }
+        ResourceFactory resourceFactory = ResourceFactory.of(server);
+        ResourceHandler resourceHandler = new ResourceHandler();
+        resourceHandler.setDirAllowed(true);
+        resourceHandler.setBaseResource(resourceFactory.newResource(webRoot));
+        ContextHandler resourceContextHandler = new ContextHandler(resourceHandler, "/");
+        
+        ContextHandler coreContextHandler = new ContextHandler(new CoreHandler(), "/core");
+        ContextHandlerCollection handlers = new ContextHandlerCollection();
+        handlers.setHandlers(resourceContextHandler, coreContextHandler);
+        server.setHandler(handlers);
     }
 
     public void start() throws Exception {
