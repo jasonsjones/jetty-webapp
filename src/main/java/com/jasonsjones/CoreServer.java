@@ -5,14 +5,11 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.Callback;
-import org.eclipse.jetty.util.resource.PathResourceFactory;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,9 +40,21 @@ public class CoreServer {
 
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(8080);
-
         server.addConnector(connector);
 
+        ContextHandler resourceContextHandler = getResourceContextHandler();
+        ContextHandler coreContextHandler = new ContextHandler(new CoreHandler(), "/core");
+
+        ContextHandlerCollection handlers = new ContextHandlerCollection();
+        handlers.setHandlers(resourceContextHandler, coreContextHandler);
+        server.setHandler(handlers);
+    }
+
+    public void start() throws Exception {
+        server.start();
+    }
+
+    private ContextHandler getResourceContextHandler() {
         Path webRoot = Paths.get("src/main/resources/web").toAbsolutePath().normalize();
         if (!Files.isDirectory(webRoot)) {
             System.err.println("ERROR: Unable to find " + webRoot + ".");
@@ -55,15 +64,7 @@ public class CoreServer {
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirAllowed(true);
         resourceHandler.setBaseResource(resourceFactory.newResource(webRoot));
-        ContextHandler resourceContextHandler = new ContextHandler(resourceHandler, "/");
-        
-        ContextHandler coreContextHandler = new ContextHandler(new CoreHandler(), "/core");
-        ContextHandlerCollection handlers = new ContextHandlerCollection();
-        handlers.setHandlers(resourceContextHandler, coreContextHandler);
-        server.setHandler(handlers);
-    }
+        return new ContextHandler(resourceHandler, "/");
 
-    public void start() throws Exception {
-        server.start();
     }
 }
