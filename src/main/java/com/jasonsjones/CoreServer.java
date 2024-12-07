@@ -1,6 +1,8 @@
 package com.jasonsjones;
 
 import com.jasonsjones.handlers.LoggingHandler;
+import org.eclipse.jetty.http.HttpHeader;
+import org.eclipse.jetty.io.Content;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -8,6 +10,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.Callback;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +22,14 @@ class ApiHandler extends Handler.Abstract {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiHandler.class);
     @Override
     public boolean handle(Request request, Response response, Callback callback) {
-        LOGGER.info("API Handler Handling request...");
-        callback.succeeded();
+        response.getHeaders().put(HttpHeader.CONTENT_TYPE, "application/json" );
+
+        JSONObject json = new JSONObject();
+        json.put("status", "success");
+        json.put("message", "api handler response");
+
+        LOGGER.info("API response {}", json);
+        Content.Sink.write(response, true, json.toString(), callback);
         return true;
     }
 }
