@@ -18,7 +18,7 @@ class LoggerHandler extends Handler.Abstract {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerHandler.class);
 
     @Override
-    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+    public boolean handle(Request request, Response response, Callback callback) {
         String user = "Guest";
         String method = request.getMethod();
         String path = request.getHttpURI().getPath();
@@ -30,18 +30,17 @@ class LoggerHandler extends Handler.Abstract {
     }
 }
 
-class CoreHandler extends Handler.Abstract {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreHandler.class);
+class ApiHandler extends Handler.Abstract {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiHandler.class);
     @Override
-    public boolean handle(Request request, Response response, Callback callback) throws Exception {
-        LOGGER.info("Core Handler Handling request...");
+    public boolean handle(Request request, Response response, Callback callback) {
+        LOGGER.info("API Handler Handling request...");
         callback.succeeded();
         return true;
     }
 }
 
 public class CoreServer {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreApp.class);
     private final Server server;
 
     public CoreServer() {
@@ -53,7 +52,7 @@ public class CoreServer {
         server.addConnector(connector);
 
         ContextHandler resourceContextHandler = getResourceContextHandler();
-        ContextHandler coreContextHandler = new ContextHandler(new CoreHandler(), "/core");
+        ContextHandler coreContextHandler = new ContextHandler(new ApiHandler(), "/api");
         ContextHandlerCollection ctxHandlers = new ContextHandlerCollection();
         ctxHandlers.setHandlers(resourceContextHandler, coreContextHandler);
 
