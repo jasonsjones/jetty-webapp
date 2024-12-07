@@ -56,9 +56,9 @@ public class CoreServer {
         ContextHandlerCollection ctxHandlers = new ContextHandlerCollection();
         ctxHandlers.setHandlers(resourceContextHandler, coreContextHandler);
 
-        Handler.Sequence root = new Handler.Sequence();
-        root.setHandlers(new LoggerHandler(), ctxHandlers);
-        server.setHandler(root);
+        Handler.Sequence rootHandler = new Handler.Sequence();
+        rootHandler.setHandlers(new LoggerHandler(), ctxHandlers);
+        server.setHandler(rootHandler);
     }
 
     public void start() throws Exception {
