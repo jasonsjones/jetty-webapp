@@ -1,5 +1,6 @@
 package com.jasonsjones;
 
+import com.jasonsjones.handlers.LoggingHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -13,22 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-class LoggerHandler extends Handler.Abstract {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerHandler.class);
-
-    @Override
-    public boolean handle(Request request, Response response, Callback callback) {
-        String user = "Guest";
-        String method = request.getMethod();
-        String path = request.getHttpURI().getPath();
-        LOGGER.info("{} => {} {}", user, method, path);
-
-        // Important: Always forward to the next handler
-        // Return false to continue the handler chain
-        return false;
-    }
-}
 
 class ApiHandler extends Handler.Abstract {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiHandler.class);
@@ -57,7 +42,7 @@ public class CoreServer {
         ctxHandlers.setHandlers(resourceContextHandler, coreContextHandler);
 
         Handler.Sequence rootHandler = new Handler.Sequence();
-        rootHandler.setHandlers(new LoggerHandler(), ctxHandlers);
+        rootHandler.setHandlers(new LoggingHandler(), ctxHandlers);
         server.setHandler(rootHandler);
     }
 
@@ -76,6 +61,5 @@ public class CoreServer {
         resourceHandler.setDirAllowed(true);
         resourceHandler.setBaseResource(resourceFactory.newResource(webRoot));
         return new ContextHandler(resourceHandler, "/");
-
     }
 }
