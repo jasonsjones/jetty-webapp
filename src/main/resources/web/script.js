@@ -1,3 +1,5 @@
-let d = new Date();
-const mainEl = document.getElementById("main");
-mainEl.innerHTML = "<h2>" + d + "</h2>"
+let date = new Date();
+const mainEl = document.querySelector("main");
+if (mainEl) {
+    mainEl.innerHTML = `<h2 class="text-lg">${date}</h2>`;
+}
