@@ -14,17 +14,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class CoreHandler extends Handler.Abstract {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CoreHandler.class);
+class LoggerHandler extends Handler.Abstract {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerHandler.class);
+
     @Override
     public boolean handle(Request request, Response response, Callback callback) throws Exception {
-        LOGGER.info("Handling request...");
-
         String user = "Guest";
         String method = request.getMethod();
         String path = request.getHttpURI().getPath();
         LOGGER.info("{} => {} {}", user, method, path);
 
+        // Important: Always forward to the next handler
+        // Return false to continue the handler chain
+        return false;
+    }
+}
+
+class CoreHandler extends Handler.Abstract {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CoreHandler.class);
+    @Override
+    public boolean handle(Request request, Response response, Callback callback) throws Exception {
+        LOGGER.info("Core Handler Handling request...");
         callback.succeeded();
         return true;
     }
@@ -44,10 +54,12 @@ public class CoreServer {
 
         ContextHandler resourceContextHandler = getResourceContextHandler();
         ContextHandler coreContextHandler = new ContextHandler(new CoreHandler(), "/core");
+        ContextHandlerCollection ctxHandlers = new ContextHandlerCollection();
+        ctxHandlers.setHandlers(resourceContextHandler, coreContextHandler);
 
-        ContextHandlerCollection handlers = new ContextHandlerCollection();
-        handlers.setHandlers(resourceContextHandler, coreContextHandler);
-        server.setHandler(handlers);
+        Handler.Sequence root = new Handler.Sequence();
+        root.setHandlers(new LoggerHandler(), ctxHandlers);
+        server.setHandler(root);
     }
 
     public void start() throws Exception {
