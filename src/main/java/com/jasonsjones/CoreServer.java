@@ -25,7 +25,7 @@ public class CoreServer {
         connector.setPort(8080);
         server.addConnector(connector);
 
-        ContextHandler resourceContextHandler = getResourceContextHandler();
+        ContextHandler resourceContextHandler = new ContextHandler(getResourceHandler(), "/");
         ContextHandler coreContextHandler = new ContextHandler(new ApiHandler(), "/api");
         ContextHandlerCollection ctxHandlers = new ContextHandlerCollection();
         ctxHandlers.setHandlers(resourceContextHandler, coreContextHandler);
@@ -39,7 +39,7 @@ public class CoreServer {
         server.start();
     }
 
-    private ContextHandler getResourceContextHandler() {
+    private ResourceHandler getResourceHandler() {
         Path webRoot = Paths.get("src/main/resources/web").toAbsolutePath().normalize();
         if (!Files.isDirectory(webRoot)) {
             System.err.println("ERROR: Unable to find " + webRoot + ".");
@@ -49,6 +49,6 @@ public class CoreServer {
         ResourceHandler resourceHandler = new ResourceHandler();
         resourceHandler.setDirAllowed(true);
         resourceHandler.setBaseResource(resourceFactory.newResource(webRoot));
-        return new ContextHandler(resourceHandler, "/");
+        return resourceHandler;
     }
 }
