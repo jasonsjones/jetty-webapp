@@ -39,4 +39,5 @@ build/
 
 node_modules
 src/main/resources/web/dist
+src/main/resources/web/tailwind.css
 
