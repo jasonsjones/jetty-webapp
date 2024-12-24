@@ -3,9 +3,12 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf src/main/resources/web/dist",
+    "build": "npm run clean && npm run build:css && npm run build:js",
     "build:js": "rollup --config rollup.config.js",
-    "build:css": "tailwindcss -i src/main/resources/web/input.css -o src/main/resources/web/tailwind.css"
+    "build:css": "tailwindcss -i src/main/resources/web/input.css -o src/main/resources/web/tailwind.css",
+    "clean": "npm run clean:css && npm run clean:js",
+    "clean:js": "rm -rf src/main/resources/web/dist",
+    "clean:css": "rm -rf src/main/resources/web/tailwind.css"
   },
   "devDependencies": {
     "@lwc/rollup-plugin": "8.12.2",
