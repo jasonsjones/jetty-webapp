@@ -1,11 +1,12 @@
 package com.jasonsjones;
 
 import com.jasonsjones.handlers.ApiHandler;
+import com.jasonsjones.handlers.BaseDocumentHandler;
 import com.jasonsjones.handlers.LoggingHandler;
 
+import org.eclipse.jetty.http.pathmap.PathSpec;
 import org.eclipse.jetty.server.*;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.PathMappingsHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
@@ -25,13 +26,14 @@ public class CoreServer {
         connector.setPort(8080);
         server.addConnector(connector);
 
-        ContextHandler resourceContextHandler = new ContextHandler(getResourceHandler(), "/");
-        ContextHandler coreContextHandler = new ContextHandler(new ApiHandler(), "/api");
-        ContextHandlerCollection ctxHandlers = new ContextHandlerCollection();
-        ctxHandlers.setHandlers(resourceContextHandler, coreContextHandler);
+        PathMappingsHandler pathMappingsHandler = new PathMappingsHandler();
+        pathMappingsHandler.addMapping(PathSpec.from("/"), new BaseDocumentHandler());
+        pathMappingsHandler.addMapping(PathSpec.from("/api"), new ApiHandler());
+
+        ResourceHandler staticResourceHandler = getStaticResourceHandler();
 
         Handler.Sequence rootHandler = new Handler.Sequence();
-        rootHandler.setHandlers(new LoggingHandler(), ctxHandlers);
+        rootHandler.setHandlers(new LoggingHandler(), pathMappingsHandler, staticResourceHandler);
         server.setHandler(rootHandler);
     }
 
@@ -39,7 +41,7 @@ public class CoreServer {
         server.start();
     }
 
-    private ResourceHandler getResourceHandler() {
+    private ResourceHandler getStaticResourceHandler() {
         Path webRoot = Paths.get("src/main/resources/web").toAbsolutePath().normalize();
         if (!Files.isDirectory(webRoot)) {
             System.err.println("ERROR: Unable to find " + webRoot + ".");
