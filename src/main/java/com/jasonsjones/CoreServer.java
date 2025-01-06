@@ -28,7 +28,8 @@ public class CoreServer {
 
         PathMappingsHandler pathMappingsHandler = new PathMappingsHandler();
         pathMappingsHandler.addMapping(PathSpec.from("/"), new BaseDocumentHandler());
-        pathMappingsHandler.addMapping(PathSpec.from("/api"), new ApiHandler());
+        pathMappingsHandler.addMapping(PathSpec.from("/about"), new BaseDocumentHandler());
+        pathMappingsHandler.addMapping(PathSpec.from("/api/*"), new ApiHandler());
 
         ResourceHandler staticResourceHandler = getStaticResourceHandler();
 

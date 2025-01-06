@@ -12,18 +12,23 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 public class BaseDocumentHandler extends Handler.Abstract {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseDocumentHandler.class);
 
+    private static final List<String> allowedPaths =  List.of("/", "/about");
+
     @Override
     public boolean handle(Request request, Response response, Callback callback) {
-        if (!request.getMethod().equals("GET") || !request.getHttpURI().getPath().equals("/")) {
+        LOGGER.info("Base document response");
+
+        String path = request.getHttpURI().getPath();
+        if (!request.getMethod().equals("GET") || !allowedPaths.contains(path)) {
             return false;
         }
 
-        LOGGER.info("Base document response");
         File indexFile = new File(Objects.requireNonNull(getClass().getClassLoader().getResource("web/index.html")).getFile());
         StringBuilder sb = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(indexFile))) {
