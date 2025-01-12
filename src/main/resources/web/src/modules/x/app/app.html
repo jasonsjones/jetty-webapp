@@ -1,10 +1,26 @@
 <template lwc:render-mode="light">
     <div class="flex flex-col h-screen">
-        <header class="h-16 bg-slate-700"></header>
-        <main class="flex-grow flex-shrink-0 bg-slate-100">
+
+        <header class="bg-primary-700 px-8 py-4 text-gray-200">
+            <nav class="flex items-center gap-8">
+                <a href="/">
+                    <div class="flex flex-col items-end">
+                        <div class="text-3xl font-bold uppercase hover:text-white">Orion</div>
+                        <div class="-mr-2 px-2 text-lg text-white font-semibold bg-primary-400 rounded-full">
+                            labs
+                        </div>
+                    </div>
+                </a>
+                <a href="/about" class="text-xl">About</a>
+            </nav>
+        </header>
+
+        <main class="flex-grow flex-shrink-0 bg-primary-100">
             <h1 class="text-2xl">Hello World from LWC!</h1>
             <p class="text-xl">{ path } Page </p>
         </main>
-        <footer class="h-16 bg-slate-700"></footer>
+
+        <footer class="h-16 bg-primary-700"></footer>
+
     </div>
 </template>
